@@ -58,7 +58,7 @@ void DmocMotorController::handleCanFrame(CAN_FRAME *frame)
 	int temp;
 	online = 1; //if a frame got to here then it passed the filter and must come from UQM
 
-        Logger::console("UQM inverter msg: %X", frame->id);
+        Logger::debug("UQM inverter msg: %X", frame->id);
         
 	switch (frame->id) 
         {
@@ -69,24 +69,24 @@ void DmocMotorController::handleCanFrame(CAN_FRAME *frame)
               dcVoltage = (((frame->data.bytes[3] * 256) + frame->data.bytes[2])-32128);
 	      dcCurrent = (((frame->data.bytes[5] * 256) + frame->data.bytes[4])-32128);
               speedActual = (((frame->data.bytes[7] * 256) + frame->data.bytes[6])-32128)/2;           
-              Logger::console("UQM Actual Torque: %d DC Voltage: %d Amps: %d RPM: %d", torqueActual/10,dcVoltage/10,dcCurrent/10,speedActual);
+              Logger::debug("UQM Actual Torque: %d DC Voltage: %d Amps: %d RPM: %d", torqueActual/10,dcVoltage/10,dcCurrent/10,speedActual);
 	      break;
 
         case 0x20A:    //System Status Message
-            Logger::console("UQM inverter 20A System Status Message Received");
+            Logger::debug("UQM inverter 20A System Status Message Received");
             break;
 
 
         case 0x20B:    //Emergency Fuel Cutback Message
-            Logger::console("UQM inverter 20B Emergency Fuel Cutback Message Received");
+            Logger::debug("UQM inverter 20B Emergency Fuel Cutback Message Received");
             break;
         
         case 0x20C:    //Reserved Message     
-            Logger::console("UQM inverter 20C Reserved Message Received");
+            Logger::debug("UQM inverter 20C Reserved Message Received");
             break;
         
         case 0x20D:    //Limited Torque Percentage Message    
-            Logger::console("UQM inverter 20D Limited Torque Percentage Message Received");
+            Logger::debug("UQM inverter 20D Limited Torque Percentage Message Received");
             break;
         
         case 0x20E:     //Temperature Feedback Message
@@ -97,12 +97,12 @@ void DmocMotorController::handleCanFrame(CAN_FRAME *frame)
 	        temperatureInverter = (invTemp-40)*10;
                 if (RotorTemp > StatorTemp) {temperatureMotor = (RotorTemp-40)*10;}
 	          else {temperatureMotor = (StatorTemp-40)*10;}		
-                Logger::console("UQM 20E Inverter temp: %d Motor temp: %d", temperatureInverter,temperatureMotor);
+                Logger::debug("UQM 20E Inverter temp: %d Motor temp: %d", temperatureInverter,temperatureMotor);
     		break;
 
 	
         case 0x20F:    //CAN Watchdog Status Message           
-                Logger::console("UQM 20F CAN Watchdog status error");
+                Logger::debug("UQM 20F CAN Watchdog status error");
                 warning=true;
                 sendCmd2(); //If we get a Watchdog status, we need to respond with Watchdog reset
 		break;
@@ -221,7 +221,7 @@ void DmocMotorController::sendCmd1()
             
 	CanHandler::getInstanceEV()->sendFrame(output);
         timestamp();
-        Logger::console("Torque command: %X  ControlByte: %X  LSB %X  MSB: %X  CRC: %X  %d:%d:%d.%d",output.data.bytes[0],
+        Logger::debug("Torque command: %X  ControlByte: %X  LSB %X  MSB: %X  CRC: %X  %d:%d:%d.%d",output.data.bytes[0],
 output.data.bytes[1],output.data.bytes[2],output.data.bytes[3],output.data.bytes[4], hours, minutes, seconds, milliseconds);
  
           
@@ -253,7 +253,7 @@ void DmocMotorController::sendCmd2() {
 	   
 	CanHandler::getInstanceEV()->sendFrame(output); 
         timestamp();
-Logger::console("Watchdog reset: %X  %X  %X  %d:%d:%d.%d",output.data.bytes[0], output.data.bytes[1],
+Logger::debug("Watchdog reset: %X  %X  %X  %d:%d:%d.%d",output.data.bytes[0], output.data.bytes[1],
 output.data.bytes[2], hours, minutes, seconds, milliseconds);
   
         warning=false;
